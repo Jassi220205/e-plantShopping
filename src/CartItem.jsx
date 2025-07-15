@@ -1,5 +1,6 @@
+// src/CartItem.jsx
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import PropTypes from 'prop-types';
 import { removeItem, updateQuantity } from './CartSlice.jsx';
 import './CartItem.css';
 
@@ -7,18 +8,11 @@ function CartItem({ onContinueShopping }) {
   const cartItems = useSelector((state) => state.cart.cartItems);
   const dispatch = useDispatch();
 
-  const calculateItemSubtotal = (item) => {
-    const price = parseFloat(item.cost.substring(1));
-    return (price * item.quantity).toFixed(2);
-  };
-
   const calculateTotalAmount = () => {
-    return cartItems
-      .reduce((total, item) => {
-        const price = parseFloat(item.cost.substring(1));
-        return total + price * item.quantity;
-      }, 0)
-      .toFixed(2);
+    return cartItems.reduce((total, item) => {
+      const price = parseFloat(item.cost.substring(1));
+      return total + item.quantity * price;
+    }, 0).toFixed(2);
   };
 
   const handleIncrement = (item) => {
@@ -37,8 +31,8 @@ function CartItem({ onContinueShopping }) {
     dispatch(removeItem(item.name));
   };
 
-  const handleCheckout = () => {
-    alert('Functionality to be added for future reference');
+  const handleCheckoutShopping = () => {
+    alert("Functionality to be added for future reference");
   };
 
   return (
@@ -48,44 +42,37 @@ function CartItem({ onContinueShopping }) {
       {cartItems.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
-        <div className="cart-items">
-          {cartItems.map((item, index) => (
-            <div className="cart-item-card" key={index}>
-              <img src={item.image} alt={item.name} />
-              <div className="cart-item-details">
-                <h3>{item.name}</h3>
-                <p>{item.description}</p>
-                <p><strong>Price:</strong> {item.cost}</p>
-                <div className="quantity-controls">
-                  <button onClick={() => handleDecrement(item)}>-</button>
-                  <span>{item.quantity}</span>
-                  <button onClick={() => handleIncrement(item)}>+</button>
+        <>
+          <div className="cart-items">
+            {cartItems.map((item, index) => (
+              <div className="cart-item-card" key={index}>
+                <img src={item.image} alt={item.name} />
+                <div className="cart-item-details">
+                  <h3>{item.name}</h3>
+                  <p>{item.description}</p>
+                  <p><strong>Price:</strong> {item.cost}</p>
+                  <p><strong>Quantity:</strong> {item.quantity}</p>
+                  <p><strong>Subtotal:</strong> ${(parseFloat(item.cost.substring(1)) * item.quantity).toFixed(2)}</p>
+
+                  <div className="cart-actions">
+                    <button onClick={() => handleIncrement(item)}>+</button>
+                    <button onClick={() => handleDecrement(item)}>-</button>
+                    <button onClick={() => handleRemove(item)}>Remove</button>
+                  </div>
                 </div>
-                <p><strong>Subtotal:</strong> ${calculateItemSubtotal(item)}</p>
-                <button className="remove-button" onClick={() => handleRemove(item)}>Remove</button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
           <div className="cart-summary">
             <h3>Total: ${calculateTotalAmount()}</h3>
-            <div className="cart-actions">
-              <button className="continue-button" onClick={onContinueShopping}>
-                Continue Shopping
-              </button>
-              <button className="checkout-button" onClick={handleCheckout}>
-                Checkout
-              </button>
-            </div>
+            <button onClick={onContinueShopping}>Continue Shopping</button>
+            <button onClick={handleCheckoutShopping}>Checkout</button>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
 }
-
-CartItem.propTypes = {
-  onContinueShopping: PropTypes.func.isRequired,
-};
 
 export default CartItem;

@@ -1,33 +1,22 @@
 // src/ProductList.jsx
-import { useState, useEffect } from 'react';
-import './ProductList.css';
-import CartItem from './CartItem';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { addItem } from './CartSlice.jsx';
-import PropTypes from 'prop-types';
+import CartItem from './CartItem';
+import './ProductList.css';
 
 function ProductList({ onHomeClick }) {
   const [showCart, setShowCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState({});
   const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.cartItems);
 
-  const plantsArray = [
-    {
-      category: "Air Purifying Plants",
-      plants: [
-        {
-          name: "Snake Plant",
-          image: "https://cdn.pixabay.com/photo/2021/01/22/06/04/snake-plant-5939187_1280.jpg",
-          description: "Produces oxygen at night, improving air quality.",
-          cost: "$15"
-        },
-        // add the rest here...
-      ]
-    }
-  ];
+  const getTotalQuantity = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
 
   const handleAddToCart = (plant) => {
-    dispatch(addItem(plant));
+    dispatch(addItem({ ...plant, quantity: 1 }));
     setAddedToCart((prev) => ({ ...prev, [plant.name]: true }));
   };
 
@@ -36,34 +25,63 @@ function ProductList({ onHomeClick }) {
     setShowCart(false);
   };
 
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    onHomeClick();
+  };
+
+  const handleCartClick = (e) => {
+    e.preventDefault();
+    setShowCart(true);
+  };
+
+  const plants = [
+    {
+      name: "Snake Plant",
+      image: "https://cdn.pixabay.com/photo/2021/01/22/06/04/snake-plant-5939187_1280.jpg",
+      description: "Produces oxygen at night, improving air quality.",
+      cost: "$15"
+    },
+    {
+      name: "Peace Lily",
+      image: "https://cdn.pixabay.com/photo/2019/06/12/14/14/peace-lilies-4269365_1280.jpg",
+      description: "Removes mold spores and purifies the air.",
+      cost: "$18"
+    }
+    // Add more if you want
+  ];
+
   return (
     <div>
       <div className="navbar">
-        <h2 onClick={onHomeClick} style={{ cursor: 'pointer' }}>Paradise Nursery</h2>
-        <button onClick={() => setShowCart(true)}>🛒 Cart</button>
+        <div className="luxury">
+          <img src="https://cdn.pixabay.com/photo/2020/08/05/13/12/eco-5465432_1280.png" alt="" />
+          <a href="/" onClick={handleHomeClick}>
+            <h3>Paradise Nursery</h3>
+            <i>Where Green Meets Serenity</i>
+          </a>
+        </div>
+        <div className="cart-section">
+          <a href="#" onClick={handleCartClick}>
+            <h3>🛒 Cart ({getTotalQuantity()})</h3>
+          </a>
+        </div>
       </div>
 
       {!showCart ? (
         <div className="product-grid">
-          {plantsArray.map((categoryObj, i) => (
-            <div key={i}>
-              <h3>{categoryObj.category}</h3>
-              <div className="plant-category">
-                {categoryObj.plants.map((plant, j) => (
-                  <div key={j} className="plant-card">
-                    <img src={plant.image} alt={plant.name} />
-                    <h4>{plant.name}</h4>
-                    <p>{plant.description}</p>
-                    <p>{plant.cost}</p>
-                    <button
-                      onClick={() => handleAddToCart(plant)}
-                      disabled={addedToCart[plant.name]}
-                    >
-                      {addedToCart[plant.name] ? 'Added to Cart' : 'Add to Cart'}
-                    </button>
-                  </div>
-                ))}
-              </div>
+          {plants.map((plant, index) => (
+            <div key={index} className="product-card">
+              <img src={plant.image} alt={plant.name} />
+              <h3>{plant.name}</h3>
+              <p>{plant.description}</p>
+              <p><strong>{plant.cost}</strong></p>
+              <button
+                disabled={addedToCart[plant.name]}
+                onClick={() => handleAddToCart(plant)}
+              >
+                {addedToCart[plant.name] ? 'Added to Cart' : 'Add to Cart'}
+              </button>
             </div>
           ))}
         </div>
@@ -73,9 +91,5 @@ function ProductList({ onHomeClick }) {
     </div>
   );
 }
-
-ProductList.propTypes = {
-  onHomeClick: PropTypes.func.isRequired
-};
 
 export default ProductList;
