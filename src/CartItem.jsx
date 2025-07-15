@@ -1,7 +1,6 @@
-// src/CartItem.jsx
-import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { removeItem, updateQuantity } from './CartSlice';
+import PropTypes from 'prop-types';
+import { removeItem, updateQuantity } from './CartSlice.jsx';
 import './CartItem.css';
 
 function CartItem({ onContinueShopping }) {
@@ -9,7 +8,7 @@ function CartItem({ onContinueShopping }) {
   const dispatch = useDispatch();
 
   const calculateItemSubtotal = (item) => {
-    const price = parseFloat(item.cost.substring(1)); // removes $
+    const price = parseFloat(item.cost.substring(1));
     return (price * item.quantity).toFixed(2);
   };
 
@@ -84,5 +83,9 @@ function CartItem({ onContinueShopping }) {
     </div>
   );
 }
+
+CartItem.propTypes = {
+  onContinueShopping: PropTypes.func.isRequired,
+};
 
 export default CartItem;
